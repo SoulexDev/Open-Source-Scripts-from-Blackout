@@ -1,0 +1,9 @@
+public class WeaponSway : MonoBehaviour
+{
+    private float amount = 100;
+    void Update()
+    {
+        float x = Input.GetAxisRaw("Mouse X") * Time.deltaTime;
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.Euler(0, x * amount, 0), Time.deltaTime * 200);
+    }
+}
