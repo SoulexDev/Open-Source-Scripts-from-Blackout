@@ -1,0 +1,80 @@
+public class Interaction : MonoBehaviour
+{
+    bool holding = false;
+    bool continueHolding = false;
+    private GameObject itemToHold;
+    private Rigidbody placeholderRb;
+    public GameObject objectPoint;
+    private int layer;
+    private float grabSpeed;
+    public LineRenderer lineRender;
+    private void Start()
+    {
+        lineRender.positionCount = 2;
+        lineRender.enabled = false;
+    }
+    void MyInput()
+    {
+        if (Input.GetButton("Fire2"))
+            holding = true;
+        else
+        {
+            holding = false;
+            continueHolding = false;
+        }
+    }
+    private void FixedUpdate()
+    {
+        RaycastHit hit;
+        if (holding && Physics.Raycast(transform.position, transform.forward, out hit, 2.5f))
+        {
+            if(hit.collider.tag == "holdableItem")
+            {
+                if (hit.rigidbody != placeholderRb)
+                {
+                    layer = hit.collider.gameObject.layer;
+                    hit.collider.gameObject.layer = 17;
+                    placeholderRb = hit.rigidbody;
+                    placeholderRb.useGravity = false;
+                    itemToHold = hit.collider.gameObject;
+                    continueHolding = true;
+                    lineRender.enabled = true;
+                    grabSpeed = 0;
+                }
+            }
+        }
+        else if (placeholderRb != null && !holding)
+        {
+            itemToHold.layer = layer;
+            placeholderRb.useGravity = true;
+            placeholderRb = null;
+            itemToHold = null;
+            lineRender.enabled = false;
+        }
+        if(holding && continueHolding)
+        {
+            grabSpeed += Time.fixedDeltaTime * 10;
+            grabSpeed = Mathf.Min(1, grabSpeed);
+            if(placeholderRb.velocity.magnitude < 0.05f)
+                placeholderRb.velocity = Vector3.zero;
+            placeholderRb.angularVelocity = Vector3.zero;
+            placeholderRb.velocity = (objectPoint.transform.position - placeholderRb.position) * grabSpeed * 15;
+        }
+    }
+    void Update()
+    {
+        MyInput();
+        if(placeholderRb != null)
+        {
+            placeholderRb.transform.rotation = Quaternion.Lerp(placeholderRb.transform.rotation, transform.rotation, Time.deltaTime * 10);
+        }
+        if (holding)
+        {
+            if(lineRender != null)
+            {
+                lineRender.SetPosition(0, objectPoint.transform.position);
+                lineRender.SetPosition(1, itemToHold.transform.position);
+            }
+        }
+    }
+}
