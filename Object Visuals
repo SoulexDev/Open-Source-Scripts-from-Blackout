@@ -1,0 +1,9 @@
+public class ObjectVisuals : MonoBehaviour
+{
+    public GameObject objectToFollow;
+    void Update()
+    {
+        transform.position = Vector3.Lerp(transform.position, objectToFollow.transform.position, Time.deltaTime * 50);
+        transform.rotation = Quaternion.Lerp(transform.rotation, objectToFollow.transform.rotation, Time.deltaTime * 50);
+    }
+}
